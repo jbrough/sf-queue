@@ -7,6 +7,10 @@ module QueueHandler
     def call(env)
       client = Redis.new
       req = Rack::Request.new(env)
+      if !req.post?
+        return [405, {}, ["Method Not Allowed"]]
+      end
+
       urls = [req.params["l"], req.params["r"]]
       err = Queue.add(client, urls)
       client.quit
@@ -20,6 +24,11 @@ module QueueHandler
 
   class Next
     def call(env)
+      req = Rack::Request.new(env)
+      if !req.post?
+        return [405, {}, ["Method Not Allowed"]]
+      end
+
       client = Redis.new
       urls, err = Queue.pop(client)
       client.quit

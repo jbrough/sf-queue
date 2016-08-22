@@ -7,6 +7,10 @@ require_relative 'upload'
 class UploadHandler
   def call(env)
     req = Rack::Request.new(env)
+    if !req.post?
+      return [405, {}, ["Method Not Allowed"]]
+    end
+
     tmp_file = req.params['csv'][:tempfile]
     client = Redis.new
     err = Upload.add(client, tmp_file)
