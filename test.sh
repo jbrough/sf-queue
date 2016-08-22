@@ -1,0 +1,1 @@
+curl -XPOST localhost:9000/add -d "l=https://bec2df9eb90bb6604cfc-660d71a7a33bc04488a7427f5fddcedf.ssl.cf3.rackcdn.com/uploads/product_image/photo/56a639acec60462743000410/large_unspecified_copy.jpg&r=https://bec2df9eb90bb6604cfc-660d71a7a33bc04488a7427f5fddcedf.ssl.cf3.rackcdn.com/uploads/product_image/photo/56a639acec6046272c000369/xlarge_unspecified11.jpg"
