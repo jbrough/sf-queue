@@ -8,7 +8,12 @@ module QueueHandler
       client = Redis.new
       req = Rack::Request.new(env)
       urls = [req.params["l"], req.params["r"]]
-      Queue.add(client, urls)
+      err = Queue.add(client, urls)
+      client.quit
+      if err
+        return [500, {}, []]
+      end
+
       [200, {}, []]
     end
   end
@@ -16,7 +21,12 @@ module QueueHandler
   class Next
     def call(env)
       client = Redis.new
-      urls = Queue.pop(client)
+      urls, err = Queue.pop(client)
+      client.quit
+      if err
+        return [500, {}, []]
+      end
+
       headers = { 'Content-Type' => 'application/json' }
       [200, headers, [urls]]
     end

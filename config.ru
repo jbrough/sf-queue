@@ -1,6 +1,15 @@
 require 'rack'
 
 require_relative 'queue_handler'
+require_relative 'upload_handler'
+
+use Rack::Static,
+  urls: ['/csv'],
+  root: 'static'
+
+map '/upload' do
+  run UploadHandler.new
+end
 
 map '/add' do
   run QueueHandler::Add.new
