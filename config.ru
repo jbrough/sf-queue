@@ -15,6 +15,10 @@ map '/add' do
   run QueueHandler::Add.new
 end
 
+map '/add/error' do
+  run QueueHandler::Add.new
+end
+
 map '/next' do
   run QueueHandler::Next.new
 end

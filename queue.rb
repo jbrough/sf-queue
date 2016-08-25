@@ -5,25 +5,15 @@ class Queue
   NAME = 'images'
 
   def self.add(client, urls)
-    begin
-      client.sadd(NAME, urls.to_json)
-    rescue => e
-      Logger.new(STDERR).error(e)
-      return e
-    end
+    client.sadd(NAME, urls.to_json)
+  end
 
-    return nil
+  def self.add_error(client, urls)
+    client.sadd("#{NAME}_error", urls.to_json)
   end
 
   def self.pop(client)
-    begin
-      urls = client.spop(NAME)
-    rescue => e
-      Logger.new(STDERR).error(e)
-      return nil, e
-    end
-
+    urls = client.spop(NAME)
     r = urls ? urls : "[]"
-    return r, nil
   end
 end
