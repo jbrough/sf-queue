@@ -11,6 +11,10 @@ map '/upload' do
   run UploadHandler.new
 end
 
+map '/stats' do
+  run QueueHandler::Stats.new
+end
+
 map '/add' do
   run QueueHandler::Add.new
 end

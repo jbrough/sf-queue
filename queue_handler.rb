@@ -1,8 +1,23 @@
 require 'rack'
-require_relative 'queue'
 require 'redis'
+require 'json'
+
+require_relative 'queue'
 
 module QueueHandler
+  class Stats
+    def call(env)
+      client = Redis.new
+      req = Rack::Request.new(env)
+
+      stats = Queue.stats(client).to_json
+      client.quit
+
+      headers = { 'Content-Type' => 'application/json' }
+      [200, headers, [stats]]
+    end
+  end
+
   class Add
     def call(env)
       client = Redis.new
@@ -11,20 +26,16 @@ module QueueHandler
         return [405, {}, ['Method Not Allowed']]
       end
 
-      p req
-
       urls = [req.params['l'], req.params['r']]
-      err = if req.env['REQUEST_PATH'] == '/add/error'
-              Queue.add_error(client, urls)
-            else
-              Queue.add(client, urls)
-            end
-      client.quit
-      if err
-        return [500, {}, []]
+      if req.env['REQUEST_PATH'] == '/add/error'
+        Queue.add_error(client, urls)
+      else
+        Queue.add(client, urls)
       end
 
-      [200, {}, []]
+      client.quit
+
+      [201, {}, []]
     end
   end
 
@@ -36,11 +47,9 @@ module QueueHandler
       end
 
       client = Redis.new
-      urls, err = Queue.pop(client)
+      urls = Queue.pop(client)
+
       client.quit
-      if err
-        return [500, {}, []]
-      end
 
       headers = { 'Content-Type' => 'application/json' }
       [200, headers, [urls]]
