@@ -39,6 +39,21 @@ module QueueHandler
     end
   end
 
+  class Flush
+    def call(env)
+      client = Redis.new
+      req = Rack::Request.new(env)
+      if !req.delete?
+        return [405, {}, ['Method Not Allowed']]
+      end
+
+      Queue.flush(client)
+      client.quit
+
+      [200, {}, []]
+    end
+  end
+
   class Next
     def call(env)
       req = Rack::Request.new(env)
@@ -47,7 +62,7 @@ module QueueHandler
       end
 
       client = Redis.new
-      urls = Queue.pop(client)
+      urls = Queue.pop(client).to_json
 
       client.quit
 

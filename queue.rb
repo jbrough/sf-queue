@@ -12,6 +12,7 @@ class Queue
 
   def self.add(client, urls)
     client.sadd(PENDING, urls.to_json)
+    client.publish(PENDING, '')
   end
 
   def self.add_error(client, urls)
@@ -20,6 +21,14 @@ class Queue
 
   def self.pop(client)
     urls = client.spop(PENDING)
-    r = urls ? urls : "[]"
+    if urls
+      { empty: false, item: JSON.parse(urls) }
+    else
+      { empty: true }
+    end
+  end
+
+  def self.flush(client)
+    client.flushall
   end
 end

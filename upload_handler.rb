@@ -4,6 +4,8 @@ require 'redis'
 
 require_relative 'upload'
 
+# This should be a sepatate service too, as if the uploader crashes
+# due to a bad upload or OOM error the whole queue will come down.
 class UploadHandler
   def call(env)
     req = Rack::Request.new(env)
@@ -13,12 +15,13 @@ class UploadHandler
 
     tmp_file = req.params['csv'][:tempfile]
     client = Redis.new
-    err = Upload.add(client, tmp_file)
+    csv, err = Upload.add(client, tmp_file)
     client.quit
     if err
       return [500, {}, ["ERROR: #{err.message}"]]
     end
 
-    [200, {}, ['OK']]
+    headers = { 'Content-Type' => 'text/csv' }
+    [200, headers, [csv]]
   end
 end

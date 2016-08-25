@@ -26,3 +26,7 @@ end
 map '/next' do
   run QueueHandler::Next.new
 end
+
+map '/' do
+  run QueueHandler::Flush.new
+end
